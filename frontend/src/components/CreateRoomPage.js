@@ -150,7 +150,7 @@ const CreateRoomPage = (props) => {
             <Grid item xs={12} align="center">
                 <FormControl component="fieldset">
                     <FormHelperText>
-                        <div align="center">Guest Control of Playback State</div>
+                        <span align="center">Guest Control of Playback State</span>
                     </FormHelperText>
                     <RadioGroup
                         row
@@ -185,7 +185,7 @@ const CreateRoomPage = (props) => {
                         }}
                     />
                     <FormHelperText>
-                        <div align="center">Votes Required To Skip Song</div>
+                        <span align="center">Votes Required To Skip Song</span>
                     </FormHelperText>
                 </FormControl>
             </Grid>

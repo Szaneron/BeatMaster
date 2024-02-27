@@ -1,6 +1,10 @@
 import React, {useState, useEffect} from "react";
 import {useNavigate, useParams} from "react-router-dom";
-import {Grid, Typography, Button} from "@material-ui/core";
+import {
+    Grid,
+    Typography,
+    Button,
+} from "@material-ui/core";
 import CreateRoomPage from "./CreateRoomPage";
 
 const Room = (props) => {
@@ -8,6 +12,7 @@ const Room = (props) => {
     const [guestCanPause, setGuestCanPause] = useState(false);
     const [isHost, setIsHost] = useState(false);
     const [showSettings, setShowSettings] = useState(false);
+    const [spotifyAuthenticated, setSpotifyAuthenticated] = useState(false);
     const [roomCode, setRoomCode] = useState(useParams().roomCode);
     const navigate = useNavigate();
 
@@ -23,6 +28,9 @@ const Room = (props) => {
             setVotesToSkip(data.votes_to_skip);
             setGuestCanPause(data.guest_can_pause);
             setIsHost(data.is_host);
+            if (data.is_host) {
+                authenticateSpotify();
+            }
         } catch (error) {
             console.error("Error fetching room details:", error);
         }
@@ -31,6 +39,21 @@ const Room = (props) => {
     useEffect(() => {
         getRoomDetails();
     }, [roomCode, props, navigate]);
+
+    const authenticateSpotify = async () => {
+        try {
+            const response = await fetch("/spotify/is-authenticated");
+            const data = await response.json();
+            setSpotifyAuthenticated(data.status);
+            if (!data.status) {
+                const authUrlResponse = await fetch("/spotify/get-auth-url");
+                const authUrlData = await authUrlResponse.json();
+                window.location.replace(authUrlData.url);
+            }
+        } catch (error) {
+            console.error("Error authenticating Spotify:", error);
+        }
+    };
 
     const leaveButtonPressed = async () => {
         try {
@@ -88,11 +111,9 @@ const Room = (props) => {
             </Grid>
         );
     };
-
     if (showSettings) {
         return renderSettings();
     }
-
     return (
         <Grid container spacing={1}>
             <Grid item xs={12} align="center">

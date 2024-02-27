@@ -21,7 +21,6 @@ export default class HomePage extends Component {
                     roomCode: data.code,
                 });
             });
-        console.log(this.state.roomCode)
     }
 
     renderHomePage() {
