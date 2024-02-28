@@ -6,6 +6,7 @@ import {
     Button,
 } from "@material-ui/core";
 import CreateRoomPage from "./CreateRoomPage";
+import MusicPlayer from "./MusicPlayer";
 
 const Room = (props) => {
     const [votesToSkip, setVotesToSkip] = useState(2);
@@ -13,6 +14,7 @@ const Room = (props) => {
     const [isHost, setIsHost] = useState(false);
     const [showSettings, setShowSettings] = useState(false);
     const [spotifyAuthenticated, setSpotifyAuthenticated] = useState(false);
+    const [song, setSong] = useState({});
     const [roomCode, setRoomCode] = useState(useParams().roomCode);
     const navigate = useNavigate();
 
@@ -38,6 +40,9 @@ const Room = (props) => {
 
     useEffect(() => {
         getRoomDetails();
+        const interval = setInterval(getCurrentSong, 1000);
+
+        return () => clearInterval(interval);
     }, [roomCode, props, navigate]);
 
     const authenticateSpotify = async () => {
@@ -52,6 +57,17 @@ const Room = (props) => {
             }
         } catch (error) {
             console.error("Error authenticating Spotify:", error);
+        }
+    };
+
+    const getCurrentSong = async () => {
+        try {
+            const response = await fetch("/spotify/current-song");
+            const data = response.ok ? await response.json() : {};
+            setSong(data);
+            console.log(data);
+        } catch (error) {
+            console.error("Error fetching current song:", error);
         }
     };
 
@@ -73,47 +89,45 @@ const Room = (props) => {
         setShowSettings(value);
     };
 
-    const renderSettings = () => {
-        return (
-            <Grid container spacing={1}>
-                <Grid item xs={12} align="center">
-                    <CreateRoomPage
-                        update={true}
-                        votesToSkip={votesToSkip}
-                        guestCanPause={guestCanPause}
-                        roomCode={roomCode}
-                        updateCallback={() => getRoomDetails()}
-                    />
-                </Grid>
-                <Grid item xs={12} align="center">
-                    <Button
-                        variant="contained"
-                        color="secondary"
-                        onClick={() => updateShowSettings(false)}
-                    >
-                        Close
-                    </Button>
-                </Grid>
+    const renderSettings = () => (
+        <Grid container spacing={1}>
+            <Grid item xs={12} align="center">
+                <CreateRoomPage
+                    update={true}
+                    votesToSkip={votesToSkip}
+                    guestCanPause={guestCanPause}
+                    roomCode={roomCode}
+                    updateCallback={getRoomDetails}
+                />
             </Grid>
-        );
-    };
-
-    const renderSettingsButton = () => {
-        return (
             <Grid item xs={12} align="center">
                 <Button
                     variant="contained"
-                    color="primary"
-                    onClick={() => updateShowSettings(true)}
+                    color="secondary"
+                    onClick={() => updateShowSettings(false)}
                 >
-                    Settings
+                    Close
                 </Button>
             </Grid>
-        );
-    };
+        </Grid>
+    );
+
+    const renderSettingsButton = () => (
+        <Grid item xs={12} align="center">
+            <Button
+                variant="contained"
+                color="primary"
+                onClick={() => updateShowSettings(true)}
+            >
+                Settings
+            </Button>
+        </Grid>
+    );
+
     if (showSettings) {
         return renderSettings();
     }
+
     return (
         <Grid container spacing={1}>
             <Grid item xs={12} align="center">
@@ -121,21 +135,7 @@ const Room = (props) => {
                     Code: {roomCode}
                 </Typography>
             </Grid>
-            <Grid item xs={12} align="center">
-                <Typography variant="h6" component="h6">
-                    Votes: {votesToSkip}
-                </Typography>
-            </Grid>
-            <Grid item xs={12} align="center">
-                <Typography variant="h6" component="h6">
-                    Guest Can Pause: {guestCanPause.toString()}
-                </Typography>
-            </Grid>
-            <Grid item xs={12} align="center">
-                <Typography variant="h6" component="h6">
-                    Host: {isHost.toString()}
-                </Typography>
-            </Grid>
+            <MusicPlayer {...song} />
             {isHost ? renderSettingsButton() : null}
             <Grid item xs={12} align="center">
                 <Button
