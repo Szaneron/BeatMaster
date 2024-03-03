@@ -55,15 +55,14 @@ def refresh_spotify_token(session_id):
         'grant_type': 'refresh_token',
         'refresh_token': refresh_token,
         'client_id': os.getenv('CLIENT_ID'),
-        'client_secret': os.getenv('SECRET_KEY')
+        'client_secret': os.getenv('CLIENT_SECRET')
     }).json()
 
     access_token = response.get('access_token')
     token_type = response.get('token_type')
     expires_in = response.get('expires_in')
 
-    update_or_create_user_tokens(
-        session_id, access_token, token_type, expires_in, refresh_token)
+    update_or_create_user_tokens(session_id, access_token, token_type, expires_in, refresh_token)
 
 
 def execute_spotify_api_request(session_id, endpoint, post_=False, put_=False):
@@ -89,3 +88,7 @@ def play_song(session_id):
 
 def pause_song(session_id):
     return execute_spotify_api_request(session_id, "player/pause", put_=True)
+
+
+def skip_song(session_id):
+    return execute_spotify_api_request(session_id, "player/next", post_=True)
