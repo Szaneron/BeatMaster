@@ -40,10 +40,12 @@ const Room = (props) => {
 
     useEffect(() => {
         getRoomDetails();
-        const interval = setInterval(getCurrentSong, 1000);
+        if (!showSettings) {
+            const interval = setInterval(getCurrentSong, 1000);
 
-        return () => clearInterval(interval);
-    }, [roomCode, props, navigate]);
+            return () => clearInterval(interval);
+        }
+    }, [roomCode, props, navigate, showSettings]);
 
     const authenticateSpotify = async () => {
         try {
