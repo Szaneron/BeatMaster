@@ -38,7 +38,7 @@ const MusicPlayer = (props) => {
     const songProgress = (props.time / props.duration) * 100;
 
     return (
-    <Card>
+    <Card style={{ width: '100%' }}>
         <Grid container alignItems="center">
             <Grid item align="center" xs={4}>
                 <img src={props.image_url} height="100%" width="100%" alt="Album Cover" />
